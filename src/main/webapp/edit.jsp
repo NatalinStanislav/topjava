@@ -2,7 +2,6 @@
 <html>
 <head>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <jsp:useBean id="isNew" type="java.lang.String" scope="request"/>
     <title>Редактирование</title>
 </head>
 <body>
@@ -10,7 +9,6 @@
     <form method="post" action="meals" enctype="application/x-www-form-urlencoded">
         <h3>Ваша еда:</h3>
         <input type="hidden" name="id" value="${meal.id}">
-        <input type="hidden" name="isNew" value="${isNew}">
         <label>Наименование:<input type="text" name="description" size=50 value="${meal.description}"></label><br/><br/>
         <label>Время:<input type="datetime-local" name="dateTime" value="${meal.dateTime}"/></label><br/><br/>
         <label>Калории:<input type="number" name="calories" value="${meal.calories}" min="0" max="5000"
