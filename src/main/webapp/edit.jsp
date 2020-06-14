@@ -8,7 +8,7 @@
 <section>
     <form method="post" action="meals" enctype="application/x-www-form-urlencoded">
         <h3>Ваша еда:</h3>
-        <input type="hidden" name="id" value="${meal.id}">
+        <input type="hidden" name="id" value=${meal.id}>
         <label>Наименование:<input type="text" name="description" size=50 value="${meal.description}"></label><br/><br/>
         <label>Время:<input type="datetime-local" name="dateTime" value="${meal.dateTime}"/></label><br/><br/>
         <label>Калории:<input type="number" name="calories" value="${meal.calories}" min="0" max="5000"

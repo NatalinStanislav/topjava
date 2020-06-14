@@ -14,15 +14,16 @@ public class MealMapStorage implements Storage<Meal> {
 
 
     @Override
-    public synchronized Meal update(Meal meal) {
-        mealMap.remove(meal.getId());
-        return mealMap.put(meal.getId(), meal);
+    public Meal update(Meal meal) {
+        mealMap.put(meal.getId(), meal);
+        return mealMap.get(meal.getId());
     }
 
     @Override
     public Meal save(Meal meal) {
         meal.setId(index.incrementAndGet());
-        return mealMap.put(meal.getId(), meal);
+        mealMap.put(meal.getId(), meal);
+        return mealMap.get(meal.getId());
     }
 
     @Override
