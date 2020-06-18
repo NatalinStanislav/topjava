@@ -29,9 +29,22 @@ public class MealRestController {
         return service.getAll(authUserId(), authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getAllFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    public List<MealTo> getAllFiltered(String startDate, String endDate, String startTime, String endTime) {
+        if (startDate.trim().equals("")) {
+            startDate = "-999999999-01-02";
+        }
+        if (endDate.trim().equals("")) {
+            endDate = "+999999999-12-30";
+        }
+        if (startTime.trim().equals("")) {
+            startTime = "00:00";
+        }
+        if (endTime.trim().equals("")) {
+            endTime = "23:59:59.999999999";
+        }
         log.info("getAllFiltered startDate{}, endDate{}, startTime{}, endTime{}", startDate, endDate, startTime, endTime);
-        return service.getAllFiltered(authUserId(), authUserCaloriesPerDay(), startDate, endDate, startTime, endTime);
+        return service.getAllFiltered(authUserId(), authUserCaloriesPerDay(), LocalDate.parse(startDate),
+                LocalDate.parse(endDate), LocalTime.parse(startTime), LocalTime.parse(endTime));
     }
 
     public Meal get(int id) {

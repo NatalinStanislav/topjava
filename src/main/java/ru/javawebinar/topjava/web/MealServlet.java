@@ -22,30 +22,26 @@ import java.util.Objects;
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
 
+    private ConfigurableApplicationContext appCtx;
     private MealRestController mealRestController;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            mealRestController = appCtx.getBean(MealRestController.class);
-        }
+        appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        mealRestController = appCtx.getBean(MealRestController.class);
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        appCtx.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
-
-        if (request.getParameter("startDay") != null) {
-            request.setAttribute("meals",
-                    mealRestController.getAllFiltered(
-                            request.getParameter("startDay").trim().equals("") ? LocalDate.of(2020, 1, 1) : LocalDate.parse(request.getParameter("startDay")),
-                            request.getParameter("endDay").trim().equals("") ? LocalDate.of(2022, 1, 1) : LocalDate.parse(request.getParameter("endDay")),
-                            request.getParameter("startTime").trim().equals("") ? LocalTime.of(0, 0) : LocalTime.parse(request.getParameter("startTime")),
-                            request.getParameter("startTime").trim().equals("") ? LocalTime.of(23, 59) : LocalTime.parse(request.getParameter("endTime"))));
-            request.getRequestDispatcher("/meals.jsp").forward(request, response);
-        }
 
         Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
                 LocalDateTime.parse(request.getParameter("dateTime")),
@@ -71,6 +67,12 @@ public class MealServlet extends HttpServlet {
                 log.info("Delete {}", id);
                 mealRestController.delete(id);
                 response.sendRedirect("meals");
+                break;
+            case "filter":
+                request.setAttribute("meals",
+                        mealRestController.getAllFiltered(request.getParameter("startDay"), request.getParameter("endDay"),
+                                request.getParameter("startTime"), request.getParameter("endTime")));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "create":
             case "update":

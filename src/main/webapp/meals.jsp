@@ -53,14 +53,15 @@
     </table>
 </section>
 <h2>Отфильтровать по времени</h2>
-<form method="post" action="meals">
+<form method="get" action="meals">
+    <input type="hidden" name="action" value="filter">
     <dl>
         <dt>От даты (включая):</dt>
-        <dd><input type="date" value="${LocalDate.of(2020,1,1)}" name="startDay"></dd>
+        <dd><input type="date" value="${LocalDate.MIN}" name="startDay"></dd>
     </dl>
     <dl>
         <dt>До даты (включая):</dt>
-        <dd><input type="date" value="${LocalDate.of(2022,1,1)}" name="endDay"></dd>
+        <dd><input type="date" value="${LocalDate.MAX}" name="endDay"></dd>
     </dl>
     <dl>
         <dt>От времени (включая):</dt>
@@ -68,7 +69,7 @@
     </dl>
     <dl>
         <dt>До времени (исключая):</dt>
-        <dd><input type="time" value="${LocalTime.of(23,59)}" name="endTime"></dd>
+        <dd><input type="time" value="${LocalTime.MAX}" name="endTime"></dd>
     </dl>
     <button type="submit">Отфильтровать</button>
 </form>
