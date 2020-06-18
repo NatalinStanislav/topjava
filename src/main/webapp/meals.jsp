@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.time.LocalDate" %>
+<%@ page import="java.time.LocalTime" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
@@ -34,7 +36,7 @@
         </tr>
         </thead>
         <c:forEach items="${meals}" var="meal">
-            <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealTo"/>
+            <jsp:useBean id="meal" type="ru.javawebinar.topjava.to.MealTo"/>
             <tr class="${meal.excess ? 'excess' : 'normal'}">
                 <td>
                         <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
@@ -50,5 +52,26 @@
         </c:forEach>
     </table>
 </section>
+<h2>Отфильтровать по времени</h2>
+<form method="post" action="meals">
+    <dl>
+        <dt>От даты (включая):</dt>
+        <dd><input type="date" value="${LocalDate.of(2020,1,1)}" name="startDay"></dd>
+    </dl>
+    <dl>
+        <dt>До даты (включая):</dt>
+        <dd><input type="date" value="${LocalDate.of(2022,1,1)}" name="endDay"></dd>
+    </dl>
+    <dl>
+        <dt>От времени (включая):</dt>
+        <dd><input type="time" value="${LocalTime.MIN}" name="startTime"></dd>
+    </dl>
+    <dl>
+        <dt>До времени (исключая):</dt>
+        <dd><input type="time" value="${LocalTime.of(23,59)}" name="endTime"></dd>
+    </dl>
+    <button type="submit">Отфильтровать</button>
+</form>
+
 </body>
 </html>
