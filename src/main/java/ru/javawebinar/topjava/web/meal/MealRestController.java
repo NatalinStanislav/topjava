@@ -31,16 +31,16 @@ public class MealRestController {
 
     public List<MealTo> getAllFiltered(String startDate, String endDate, String startTime, String endTime) {
         if (startDate.trim().equals("")) {
-            startDate = "-999999999-01-02";
+            startDate = LocalDate.MIN.plusDays(1).toString();
         }
         if (endDate.trim().equals("")) {
-            endDate = "+999999999-12-30";
+            endDate = LocalDate.MAX.minusDays(1).toString();
         }
         if (startTime.trim().equals("")) {
-            startTime = "00:00";
+            startTime = LocalTime.MIN.toString();
         }
         if (endTime.trim().equals("")) {
-            endTime = "23:59:59.999999999";
+            endTime = LocalTime.MAX.toString();
         }
         log.info("getAllFiltered startDate{}, endDate{}, startTime{}, endTime{}", startDate, endDate, startTime, endTime);
         return service.getAllFiltered(authUserId(), authUserCaloriesPerDay(), LocalDate.parse(startDate),

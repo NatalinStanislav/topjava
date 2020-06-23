@@ -6,12 +6,12 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryMealRepository implements MealRepository {
@@ -20,16 +20,13 @@ public class InMemoryMealRepository implements MealRepository {
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        repository.put(1, new ConcurrentHashMap<>());
         MealsUtil.MEALS.forEach(meal -> save(1, meal));
     }
 
     @Override
     public Meal save(int userId, Meal meal) {
         log.info("save meal{} with userId = {}", meal, userId);
-        if (repository.get(userId) == null) {
-            repository.put(userId, new ConcurrentHashMap<>());
-        }
+        repository.computeIfAbsent(userId, k -> new HashMap<>());
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             repository.get(userId).put(meal.getId(), meal);
@@ -55,18 +52,24 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public List<Meal> getAll(int userId) {
         log.info("getAll meals with userId = {}", userId);
-        List<Meal> meals = new ArrayList<>();
-        if (repository.get(userId) != null) {
-            meals.addAll(repository.get(userId).values());
-        }
-        meals.sort(Comparator.comparing(Meal::getDateTime).reversed());
-        return meals;
+        return getFilteredList(userId, LocalDate.MIN.plusDays(1), LocalDate.MAX.minusDays(1));
     }
 
     @Override
     public List<Meal> getAllFiltered(int userId, LocalDate startDate, LocalDate endDate) {
         log.info("getAllFiltered mealsTo with userId = {} startDate{}, endDate{}", userId, startDate, endDate);
-        return MealsUtil.filterByDays(getAll(userId), startDate, endDate);
+        return getFilteredList(userId, startDate, endDate);
+    }
+
+    private List<Meal> getFilteredList(int userId, LocalDate startDate, LocalDate endDate) {
+        List<Meal> meals = new ArrayList<>();
+        if (repository.get(userId) != null) {
+            meals = repository.get(userId).values().stream()
+                    .filter(meal -> meal.getDate().isAfter(startDate.minusDays(1)) && meal.getDate().isBefore(endDate.plusDays(1)))
+                    .sorted(Comparator.comparing(Meal::getDateTime).reversed())
+                    .collect(Collectors.toList());
+        }
+        return meals;
     }
 }
 
