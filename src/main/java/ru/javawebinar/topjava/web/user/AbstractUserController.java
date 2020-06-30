@@ -48,8 +48,4 @@ public abstract class AbstractUserController {
         log.info("getByEmail {}", email);
         return service.getByEmail(email);
     }
-
-    public void setService(UserService service) {
-        this.service = service;
-    }
 }

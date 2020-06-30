@@ -22,10 +22,13 @@ import java.util.List;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
+import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 
 @ContextConfiguration({
         "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-jdbc-repository.xml",
         "classpath:spring/spring-db.xml"
 })
 @RunWith(SpringRunner.class)
@@ -47,24 +50,24 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        Meal meal = service.get(USER_MEAL_03_ID, USER_ID);
+        Meal meal = service.get(USER_MEAL_03.getId(), USER_ID);
         assertMatch(meal, USER_MEAL_03);
     }
 
     @Test
     public void getSomeoneElseFood() throws Exception {
-        assertThrows(NotFoundException.class, () -> service.get(ADMIN_MEAL_01_ID, USER_ID));
+        assertThrows(NotFoundException.class, () -> service.get(ADMIN_MEAL_01.getId(), USER_ID));
     }
 
     @Test
     public void delete() {
-        service.delete(USER_MEAL_03_ID, USER_ID);
-        assertNull(repository.get(USER_MEAL_03_ID, USER_ID));
+        service.delete(USER_MEAL_03.getId(), USER_ID);
+        assertNull(repository.get(USER_MEAL_03.getId(), USER_ID));
     }
 
     @Test
     public void deleteSomeoneElseFood() throws Exception {
-        assertThrows(NotFoundException.class, () -> service.delete(ADMIN_MEAL_01_ID, USER_ID));
+        assertThrows(NotFoundException.class, () -> service.delete(ADMIN_MEAL_01.getId(), USER_ID));
     }
 
     @Test
@@ -85,14 +88,14 @@ public class MealServiceTest {
 
     @Test
     public void update() {
-        Meal updated = new Meal(USER_MEAL_03_ID, LocalDateTime.parse("2020-06-27T20:00:00"), "ужин невкусный и грустный", 200);
+        Meal updated = new Meal(USER_MEAL_03.getId(),LocalDateTime.of(2020, 6, 27, 20, 0, 0), "ужин невкусный и грустный", 200);
         service.update(updated, USER_ID);
-        assertMatch(service.get(USER_MEAL_03_ID, USER_ID), updated);
+        assertMatch(service.get(USER_MEAL_03.getId(), USER_ID), updated);
     }
 
     @Test
     public void updateSomeoneElseFood() throws Exception {
-        Meal updated = new Meal(USER_MEAL_03_ID, LocalDateTime.parse("2020-06-27T20:00:00"), "ужин невкусный и грустный", 200);
+        Meal updated = new Meal(USER_MEAL_03.getId(), LocalDateTime.of(2020, 6, 27, 20, 0, 0), "ужин невкусный и грустный", 200);
         assertThrows(NotFoundException.class, () -> service.update(updated, ADMIN_ID));
     }
 
@@ -109,6 +112,6 @@ public class MealServiceTest {
     @Test
     public void duplicateMealDate() throws Exception {
         assertThrows(DuplicateKeyException.class, () ->
-                service.create(new Meal(LocalDateTime.parse("2020-06-27T13:00:00"), "дубль", 1000), USER_ID));
+                service.create(new Meal(LocalDateTime.of(2020, 6, 27, 13, 0, 0), "дубль", 1000), USER_ID));
     }
 }
