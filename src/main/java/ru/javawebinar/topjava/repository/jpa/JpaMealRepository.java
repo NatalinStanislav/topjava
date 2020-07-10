@@ -1,37 +1,80 @@
 package ru.javawebinar.topjava.repository.jpa;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
+@Transactional(readOnly = true)
 public class JpaMealRepository implements MealRepository {
 
+    @PersistenceContext
+    private EntityManager em;
+
     @Override
+    @Transactional
     public Meal save(Meal meal, int userId) {
-        return null;
+        if (meal.isNew()) {
+            User ref = em.getReference(User.class, userId);
+            meal.setUser(ref);
+            em.persist(meal);
+        } else {
+            if (em.createQuery("UPDATE Meal m SET m.description=?1, m.calories=?2, m.dateTime=?3 WHERE m.id=?4 AND m.user.id=?5")
+                    .setParameter(1, meal.getDescription())
+                    .setParameter(2, meal.getCalories())
+                    .setParameter(3, meal.getDateTime())
+                    .setParameter(4, meal.getId())
+                    .setParameter(5, userId)
+                    .executeUpdate() == 0) {
+                return null;
+            }
+        }
+        return meal;
     }
 
     @Override
+    @Transactional
     public boolean delete(int id, int userId) {
-        return false;
+        Query query = em.createQuery("DELETE FROM Meal m WHERE m.id=:id AND m.user.id =:userId");
+        return query.setParameter("id", id)
+                .setParameter("userId", userId)
+                .executeUpdate() != 0;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        return null;
+        try {
+            return em.createQuery("SELECT m FROM Meal m WHERE m.id=:id AND m.user.id =:userId", Meal.class)
+                    .setParameter("id", id)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return null;
+        return em.createQuery("SELECT m FROM Meal m WHERE m.user.id=:userId ORDER BY m.dateTime DESC", Meal.class)
+                .setParameter("userId", userId)
+                .getResultList();
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return null;
+        return em.createQuery("SELECT m FROM Meal m WHERE m.user.id =?1 AND m.dateTime >= ?2 AND m.dateTime < ?3 ORDER BY m.dateTime DESC", Meal.class)
+                .setParameter(1, userId)
+                .setParameter(2, startDateTime)
+                .setParameter(3, endDateTime)
+                .getResultList();
     }
 }

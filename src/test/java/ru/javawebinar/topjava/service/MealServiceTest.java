@@ -7,6 +7,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -80,6 +81,7 @@ public class MealServiceTest {
 
     @Test
     public void updateNotOwn() throws Exception {
+        MEAL1.setUser(UserTestData.USER);
         assertThrows(NotFoundException.class, () -> service.update(MEAL1, ADMIN_ID));
     }
 
