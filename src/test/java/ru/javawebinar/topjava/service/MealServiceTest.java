@@ -1,7 +1,14 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -25,6 +32,36 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    private static StringBuilder sb = new StringBuilder();
+
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+
+    @AfterClass
+    public static void after() {
+        System.out.println(sb.toString());
+    }
+
+    @Rule
+    public final TestName name = new TestName();
+
+    @Rule
+    public TestWatcher watcher = new TestWatcher() {
+        public long startTime;
+        public long endTime;
+
+        @Override
+        protected void starting(Description description) {
+            startTime = System.nanoTime();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            endTime = System.nanoTime();
+            String str = "Время выполнения теста " + name.getMethodName() + ": " + (endTime - startTime) / 1000000 + " миллисекунд";
+            log.info(str);
+            sb.append(str).append("\n");
+        }
+    };
 
     @Autowired
     private MealService service;
