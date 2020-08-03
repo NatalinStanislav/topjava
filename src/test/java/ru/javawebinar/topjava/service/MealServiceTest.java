@@ -3,8 +3,7 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -32,34 +32,36 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
-    private static StringBuilder sb = new StringBuilder();
+    private static StringBuilder sb = new StringBuilder("\nThe duration of the tests:\n");
 
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
 
+    private static void logInfo(Description description, long nanos) {
+        String testName = description.getMethodName();
+        long time = TimeUnit.NANOSECONDS.toMillis(nanos);
+        sb.append((char) 27 + "[31m")
+                .append(testName)
+                .append((char) 27)
+                .append("[0m")
+                .append(" - ")
+                .append((char) 27 + "[35m")
+                .append(time)
+                .append((char) 27)
+                .append("[0m")
+                .append(" ms\n");
+        log.info(String.format("Test %s finished, spent %d milliseconds", testName, time));
+    }
+
     @AfterClass
     public static void after() {
-        System.out.println(sb.toString());
+        log.info(sb.toString());
     }
 
     @Rule
-    public final TestName name = new TestName();
-
-    @Rule
-    public TestWatcher watcher = new TestWatcher() {
-        public long startTime;
-        public long endTime;
-
+    public Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            startTime = System.nanoTime();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            endTime = System.nanoTime();
-            String str = "Время выполнения теста " + name.getMethodName() + ": " + (endTime - startTime) / 1000000 + " миллисекунд";
-            log.info(str);
-            sb.append(str).append("\n");
+        protected void finished(long nanos, Description description) {
+            logInfo(description, nanos);
         }
     };
 
