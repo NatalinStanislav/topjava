@@ -26,12 +26,4 @@ public class Profiles {
             }
         }
     }
-
-    public static String getCommonPartsForRepositoryImplementation() {
-        if(REPOSITORY_IMPLEMENTATION.equals("jdbc")) {
-            return "";
-        }else {
-            return "jpa-datajpa";
-        }
-    }
 }
