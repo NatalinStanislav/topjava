@@ -6,7 +6,4 @@ import ru.javawebinar.topjava.service.MealServiceTest;
 
 @ActiveProfiles(profiles = Profiles.JPA)
 public class JpaMealServiceTest extends MealServiceTest {
-    static {
-        results = new StringBuilder();
-    }
 }

@@ -6,7 +6,4 @@ import ru.javawebinar.topjava.service.UserServiceTest;
 
 @ActiveProfiles(profiles = Profiles.JPA)
 public class JpaUserServiceTest extends UserServiceTest {
-    static {
-        results = new StringBuilder();
-    }
 }
