@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.web.meal;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -18,10 +17,10 @@ import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 @Controller
-public class MealRestController {
-    private static final Logger log = LoggerFactory.getLogger(MealRestController.class);
-
-    private final MealService service;
+public class MealRestController extends AbstractMealController {
+    static {
+        log = LoggerFactory.getLogger(MealRestController.class);
+    }
 
     public MealRestController(MealService service) {
         this.service = service;
