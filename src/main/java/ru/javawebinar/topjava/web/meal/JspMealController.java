@@ -1,12 +1,11 @@
 package ru.javawebinar.topjava.web.meal;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Objects;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
@@ -22,62 +20,62 @@ import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 
 @Controller
+@RequestMapping(value = "/meals")
 public class JspMealController extends AbstractMealController {
-    static {
-        log = LoggerFactory.getLogger(JspMealController.class);
-    }
 
-    @GetMapping("/meals")
-    public String get(HttpServletRequest request) {
-        request.setAttribute("meals", MealsUtil.getTos(service.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay()));
+    @GetMapping
+    public String getAll(HttpServletRequest request) {
+        request.setAttribute("meals", getAll());
         return "meals";
     }
 
-    @GetMapping("/meals/delete")
+    @GetMapping("/delete")
     public String delete(HttpServletRequest request) {
-        int id = getId(request);
-        service.delete(id, SecurityUtil.authUserId());
+        delete(getId(request));
         return "redirect:/meals";
     }
 
-    @GetMapping("/meals/create")
+    @GetMapping("/create")
     public String create(HttpServletRequest request) {
         final Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000);
+        log.info("create {} for user {}", meal, SecurityUtil.authUserId());
         request.setAttribute("meal", meal);
+        request.setAttribute("create", "true");
         return "mealForm";
     }
 
-    @GetMapping("/meals/update")
+    @GetMapping("/update")
     public String update(HttpServletRequest request) {
         final Meal meal = service.get(getId(request), SecurityUtil.authUserId());
+        log.info("update {} for user {}", meal, SecurityUtil.authUserId());
         request.setAttribute("meal", meal);
+        request.setAttribute("create", "false");
         return "mealForm";
     }
 
-    @GetMapping("/meals/filter")
+    @GetMapping("/filter")
     public String filter(HttpServletRequest request) {
         LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
         LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
         LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
         LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
-
-        int userId = SecurityUtil.authUserId();
-        List<Meal> mealsDateFiltered = service.getBetweenInclusive(startDate, endDate, userId);
-        request.setAttribute("meals", MealsUtil.getFilteredTos(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime));
+        request.setAttribute("meals", getFiltered(startDate, startTime, endDate, endTime));
         return "meals";
     }
 
-    @PostMapping("/meals/create")
+    @PostMapping
     public String add(HttpServletRequest request) {
+        int userId = SecurityUtil.authUserId();
         Meal meal = new Meal(
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
 
         if (StringUtils.isEmpty(request.getParameter("id"))) {
-            service.create(meal, SecurityUtil.authUserId());
+            log.info("add {} for user {}", meal, userId);
+            service.create(meal, userId);
         } else {
-            int userId = SecurityUtil.authUserId();
+            log.info("update {} for user {}", meal, userId);
             assureIdConsistent(meal, getId(request));
             service.update(meal, userId);
         }

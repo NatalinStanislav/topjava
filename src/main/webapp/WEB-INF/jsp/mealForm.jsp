@@ -5,6 +5,7 @@
 <html>
 <jsp:include page="fragments/headTag.jsp"/>
 <head>
+    <base href="http://localhost:8080/topjava_war_exploded/">
     <title>Meal</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -13,9 +14,10 @@
 <section>
     <h3><a href="index.html">Home</a></h3>
     <hr>
-    <h2><spring:message code="meal.create/update"/></h2>
+    <h2><%= request.getAttribute("create") == "true" ? "Create new meal" : "Update meal"%>
+    </h2>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <form method="post">
+    <form method="post" action="meals">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
             <dt><spring:message code="meal.dateTime"/>:</dt>

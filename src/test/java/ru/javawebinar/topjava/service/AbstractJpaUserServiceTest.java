@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import ru.javawebinar.topjava.repository.JpaUtil;
 
-public class AbstractJpaUserServiceTest extends AbstractUserServiceTest {
+public abstract class AbstractJpaUserServiceTest extends AbstractUserServiceTest {
     @Autowired
     private CacheManager cacheManager;
 
