@@ -4,19 +4,13 @@
 
 <html>
 <jsp:include page="fragments/headTag.jsp"/>
-<head>
-    <base href="http://localhost:8080/topjava_war_exploded/">
-    <title>Meal</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
     <h3><a href="index.html">Home</a></h3>
     <hr>
-    <h2><%= request.getAttribute("create") == "true" ? "Create new meal" : "Update meal"%>
-    </h2>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
+    <h2><spring:message code="${meal.id == null ? 'common.add' : 'common.update'}"/></h2>
     <form method="post" action="meals">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
@@ -24,11 +18,11 @@
             <dd><input type="datetime-local" value="${meal.dateTime}" name="dateTime" required></dd>
         </dl>
         <dl>
-            <dt><spring:message code="meal.descriptionn"/>:</dt>
+            <dt><spring:message code="meal.description"/>:</dt>
             <dd><input type="text" value="${meal.description}" size=40 name="description" required></dd>
         </dl>
         <dl>
-            <dt><spring:message code="meal.caloriess"/>:</dt>
+            <dt><spring:message code="meal.calories"/>:</dt>
             <dd><input type="number" value="${meal.calories}" name="calories" required></dd>
         </dl>
         <button type="submit"><spring:message code="common.save"/></button>

@@ -13,28 +13,45 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
+
 public abstract class AbstractMealController {
     @Autowired
     protected MealService service;
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
-    protected List<MealTo> getAll() {
+    public List<MealTo> getAll() {
         int userId = SecurityUtil.authUserId();
         log.info("getAll for user {}", userId);
         return MealsUtil.getTos(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    protected void delete(int id) {
+    public void delete(int id) {
         int userId = SecurityUtil.authUserId();
         log.info("delete meal {} for user {}", id, userId);
         service.delete(id, userId);
     }
 
-    protected List<MealTo> getFiltered(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    public List<MealTo> getFiltered(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
         int userId = SecurityUtil.authUserId();
         log.info("filter dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, userId);
         List<Meal> mealsDateFiltered = service.getBetweenInclusive(startDate, endDate, userId);
         return MealsUtil.getFilteredTos(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime);
+    }
+
+    public Meal create(Meal meal) {
+        int userId = SecurityUtil.authUserId();
+        checkNew(meal);
+        log.info("create {} for user {}", meal, userId);
+        return service.create(meal, userId);
+    }
+
+    public void update(Meal meal, int id) {
+        int userId = SecurityUtil.authUserId();
+        assureIdConsistent(meal, id);
+        log.info("update {} for user {}", meal, userId);
+        service.update(meal, userId);
     }
 }

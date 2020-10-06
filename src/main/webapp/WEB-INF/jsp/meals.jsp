@@ -6,10 +6,6 @@
 
 <html>
 <jsp:include page="fragments/headTag.jsp"/>
-<head>
-    <base href="http://localhost:8080/topjava_war_exploded/">
-    <title>Meals</title>
-</head>
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>

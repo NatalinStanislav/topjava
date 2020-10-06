@@ -17,7 +17,6 @@ import java.util.Objects;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
-import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 
 @Controller
 @RequestMapping(value = "/meals")
@@ -40,7 +39,6 @@ public class JspMealController extends AbstractMealController {
         final Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000);
         log.info("create {} for user {}", meal, SecurityUtil.authUserId());
         request.setAttribute("meal", meal);
-        request.setAttribute("create", "true");
         return "mealForm";
     }
 
@@ -49,7 +47,6 @@ public class JspMealController extends AbstractMealController {
         final Meal meal = service.get(getId(request), SecurityUtil.authUserId());
         log.info("update {} for user {}", meal, SecurityUtil.authUserId());
         request.setAttribute("meal", meal);
-        request.setAttribute("create", "false");
         return "mealForm";
     }
 
@@ -65,19 +62,15 @@ public class JspMealController extends AbstractMealController {
 
     @PostMapping
     public String add(HttpServletRequest request) {
-        int userId = SecurityUtil.authUserId();
         Meal meal = new Meal(
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
 
         if (StringUtils.isEmpty(request.getParameter("id"))) {
-            log.info("add {} for user {}", meal, userId);
-            service.create(meal, userId);
+            create(meal);
         } else {
-            log.info("update {} for user {}", meal, userId);
-            assureIdConsistent(meal, getId(request));
-            service.update(meal, userId);
+            update(meal, getId(request));
         }
         return "redirect:/meals";
     }
