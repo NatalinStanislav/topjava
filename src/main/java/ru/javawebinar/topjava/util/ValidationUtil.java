@@ -8,6 +8,8 @@ import javax.validation.*;
 import java.util.Set;
 
 public class ValidationUtil {
+    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
     private ValidationUtil() {
     }
 
@@ -58,8 +60,6 @@ public class ValidationUtil {
     }
 
     public static <T> void validate(T object) {
-        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        Validator validator = validatorFactory.getValidator();
         Set<ConstraintViolation<T>> set = validator.validate(object);
         if (set.size() != 0) {
             throw new ConstraintViolationException(set);
