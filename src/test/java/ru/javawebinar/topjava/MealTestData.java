@@ -15,8 +15,9 @@ public class MealTestData {
     public static final int MEAL1_ID = START_SEQ + 2;
     public static final int ADMIN_MEAL_ID = START_SEQ + 9;
 
-    public static final String MORNING_TIME_OF_30_JANUARY = "2020-01-30T09:00:00";
-    public static final String EVENING_TIME_OF_30_JANUARY = "2020-01-30T18:00:00";
+    public static final String ONE_DAY_OF_JANUARY = "2020-01-30";
+    public static final String MORNING_TIME = "09:00:00";
+    public static final String EVENING_TIME = "18:00:00";
 
     public static final Meal MEAL1 = new Meal(MEAL1_ID, of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500);
     public static final Meal MEAL2 = new Meal(MEAL1_ID + 1, of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000);

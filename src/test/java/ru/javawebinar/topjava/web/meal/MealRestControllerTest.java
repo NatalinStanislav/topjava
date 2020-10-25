@@ -13,7 +13,6 @@ import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
-import ru.javawebinar.topjava.web.SecurityUtil;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.TestUtil.readFromJson;
 import static ru.javawebinar.topjava.UserTestData.*;
+import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
 
 public class MealRestControllerTest extends AbstractControllerTest {
 
@@ -46,7 +46,7 @@ public class MealRestControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(TestMatcher.usingFieldsComparator(MealTo.class).contentJson(MealsUtil.getTos(MEALS, SecurityUtil.authUserCaloriesPerDay())));
+                .andExpect(TestMatcher.usingFieldsComparator(MealTo.class).contentJson(MealsUtil.getTos(MEALS, DEFAULT_CALORIES_PER_DAY)));
     }
 
     @Test
@@ -80,18 +80,42 @@ public class MealRestControllerTest extends AbstractControllerTest {
         int newId = created.id();
         newMeal.setId(newId);
         MEAL_MATCHER.assertMatch(created, newMeal);
-        MEAL_MATCHER.assertMatch(mealService.get(newId, SecurityUtil.authUserId()), newMeal);
+        MEAL_MATCHER.assertMatch(mealService.get(newId, USER_ID), newMeal);
     }
 
     @Test
     void getBetween() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_URL + "filter?startDate=" + MORNING_TIME_OF_30_JANUARY + "&" +
-                "startTime=" + MORNING_TIME_OF_30_JANUARY + "&" +
-                "endDate=" + EVENING_TIME_OF_30_JANUARY + "&" +
-                "endTime=" + EVENING_TIME_OF_30_JANUARY))
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter?startDate=" + ONE_DAY_OF_JANUARY + "&" +
+                "startTime=" + MORNING_TIME + "&" +
+                "endDate=" + ONE_DAY_OF_JANUARY + "&" +
+                "endTime=" + EVENING_TIME))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(TestMatcher.usingFieldsComparator(MealTo.class).contentJson(MealsUtil.getTos(FILTERED_MEALS, SecurityUtil.authUserCaloriesPerDay())));
+                .andExpect(TestMatcher.usingFieldsComparator(MealTo.class).contentJson(MealsUtil.getTos(FILTERED_MEALS, DEFAULT_CALORIES_PER_DAY)));
+    }
+
+    @Test
+    void getBetweenNullDates() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter?startDate=" + null + "&" +
+                "startTime=" + null + "&" +
+                "endDate=" + null + "&" +
+                "endTime=" + null))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(TestMatcher.usingFieldsComparator(MealTo.class).contentJson(MealsUtil.getTos(MEALS, DEFAULT_CALORIES_PER_DAY)));
+    }
+
+    @Test
+    void getBetweenDummyDates() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter?startDate=" + "Yesterday" + "&" +
+                "startTime=" + "09:00:67" + "&" +
+                "endDate=" + "pikachu" + "&" +
+                "endTime=" + "null"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(TestMatcher.usingFieldsComparator(MealTo.class).contentJson(MealsUtil.getTos(MEALS, DEFAULT_CALORIES_PER_DAY)));
     }
 }
