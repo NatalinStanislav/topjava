@@ -33,3 +33,22 @@ $(function () {
         }
     );
 });
+
+function updateTable() {
+    var startDate = $("#startDate").val();
+    var endDate = $("#endDate").val();
+    var startTime = $("#startTime").val();
+    var endTime = $("#endTime").val();
+    $.ajax({
+        url: context.ajaxUrl + "filter?startDate=" + startDate + "&endDate=" + endDate + "&startTime=" + startTime + "&endTime=" + endTime,
+        type: "GET"
+    }).done(function (data) {
+        context.datatableApi.clear().rows.add(data).draw();
+    });
+}
+function clearFilter() {
+    $("#startDate").val("");
+    $("#endDate").val("");
+    $("#startTime").val("");
+    $("#endTime").val("");
+}

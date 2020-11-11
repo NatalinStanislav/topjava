@@ -40,3 +40,20 @@ $(function () {
         }
     );
 });
+
+function updateTable() {
+    $.get(context.ajaxUrl, function (data) {
+        context.datatableApi.clear().rows.add(data).draw();
+    });
+}
+
+function updateUserState(obj, id) {
+    var state = $(obj).prop("checked");
+    $.ajax({
+        url: context.ajaxUrl + id + "?enabled="+state,
+        type: "PUT"
+    }).done(function () {
+        updateTable();
+        successNoty("User state was updated");
+    });
+}
