@@ -35,20 +35,17 @@ $(function () {
 });
 
 function updateTable() {
-    var startDate = $("#startDate").val();
-    var endDate = $("#endDate").val();
-    var startTime = $("#startTime").val();
-    var endTime = $("#endTime").val();
     $.ajax({
-        url: context.ajaxUrl + "filter?startDate=" + startDate + "&endDate=" + endDate + "&startTime=" + startTime + "&endTime=" + endTime,
-        type: "GET"
+        url: context.ajaxUrl + "filter",
+        type: "GET",
+        data: $("#filter").serialize()
     }).done(function (data) {
-        context.datatableApi.clear().rows.add(data).draw();
+        fillTable(data);
     });
 }
 function clearFilter() {
-    $("#startDate").val("");
-    $("#endDate").val("");
-    $("#startTime").val("");
-    $("#endTime").val("");
+    $("#filter").trigger('reset');
+    $.get(context.ajaxUrl, function (data) {
+        fillTable(data);
+    });
 }

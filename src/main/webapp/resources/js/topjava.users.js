@@ -43,17 +43,25 @@ $(function () {
 
 function updateTable() {
     $.get(context.ajaxUrl, function (data) {
-        context.datatableApi.clear().rows.add(data).draw();
+        fillTable(data);
     });
 }
 
 function updateUserState(obj, id) {
     var state = $(obj).prop("checked");
     $.ajax({
-        url: context.ajaxUrl + id + "?enabled="+state,
-        type: "PUT"
+        url: context.ajaxUrl + id + "?enabled=" + state,
+        type: "PATCH"
     }).done(function () {
-        updateTable();
-        successNoty("User state was updated");
+        var element = $(obj).parents("tr");
+        if (state) {
+            element.removeClass("translucent");
+            successNoty("Enabled");
+        } else {
+            element.addClass("translucent");
+            successNoty("Disabled");
+        }
+    }).fail(function () {
+        $(obj).prop("checked", !state);
     });
 }

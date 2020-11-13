@@ -3,7 +3,6 @@ var context, form;
 function makeEditable(ctx) {
     context = ctx;
     form = $('#detailsForm');
-    $("input:checkbox:checked").parents("tr").removeClass("translucent");
     $(".delete").click(function () {
         if (confirm('Are you sure?')) {
             deleteRow($(this).parents("tr").attr("id"));
@@ -71,4 +70,8 @@ function failNoty(jqXHR) {
         type: "error",
         layout: "bottomRight"
     }).show();
+}
+
+function fillTable(data) {
+    context.datatableApi.clear().rows.add(data).draw();
 }

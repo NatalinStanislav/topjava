@@ -57,6 +57,7 @@ public class AdminRestController extends AbstractUserController {
 
     @GetMapping("/{id}/with-meals")
     public User getWithMeals(@PathVariable int id) {
+        log.info("getWithMeals {}", id);
         return service.getWithMeals(id);
     }
 }

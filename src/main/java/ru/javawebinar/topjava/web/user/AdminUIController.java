@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.web.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -39,13 +38,8 @@ public class AdminUIController extends AbstractUserController {
         }
     }
 
-    @Transactional
-    @PutMapping(value = "/{id}")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void updateUserState(@RequestParam String enabled, @PathVariable int id) {
-        boolean isEnabled = Boolean.parseBoolean(enabled);
-        User user = super.get(id);
-        user.setEnabled(isEnabled);
-        super.update(user, id);
+    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void updateUserState(@RequestParam boolean enabled, @PathVariable int id) {
+       service.updateUserState(enabled, id);
     }
 }
