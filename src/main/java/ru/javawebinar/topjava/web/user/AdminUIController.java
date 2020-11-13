@@ -38,8 +38,9 @@ public class AdminUIController extends AbstractUserController {
         }
     }
 
-    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{id}")
     public void updateUserState(@RequestParam boolean enabled, @PathVariable int id) {
-       service.updateUserState(enabled, id);
+        log.info("updateUserState to {} with id={}", enabled, id);
+        service.updateUserState(enabled, id);
     }
 }

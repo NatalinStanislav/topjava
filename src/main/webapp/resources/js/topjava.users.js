@@ -51,7 +51,7 @@ function updateUserState(obj, id) {
     var state = $(obj).prop("checked");
     $.ajax({
         url: context.ajaxUrl + id + "?enabled=" + state,
-        type: "PATCH"
+        type: "POST"
     }).done(function () {
         var element = $(obj).parents("tr");
         if (state) {
@@ -63,5 +63,11 @@ function updateUserState(obj, id) {
         }
     }).fail(function () {
         $(obj).prop("checked", !state);
+        new Noty({
+            text: "Can't change the user's state",
+            type: 'error',
+            layout: "bottomRight",
+            timeout: 1000
+        }).show();
     });
 }

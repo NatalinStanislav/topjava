@@ -60,4 +60,13 @@ public class AdminRestController extends AbstractUserController {
         log.info("getWithMeals {}", id);
         return service.getWithMeals(id);
     }
+
+    @PatchMapping(value = "/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void updateUserState(@RequestParam boolean enabled, @PathVariable int id) {
+        log.info("updateUserState to {} with id={}", enabled, id);
+        User user = service.get(id);
+        user.setEnabled(enabled);
+        service.update(user);
+    }
 }
