@@ -32,7 +32,6 @@ public class MealUIController extends AbstractMealController {
         return super.get(id);
     }
 
-
     @Override
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)

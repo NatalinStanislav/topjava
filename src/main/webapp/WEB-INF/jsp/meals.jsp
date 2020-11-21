@@ -3,6 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
 <html>
+<jsp:include page="fragments/i18n.jsp"/>
 <jsp:include page="fragments/headTag.jsp"/>
 <body>
 <script type="text/javascript" src="resources/js/topjava.common.js" defer></script>
@@ -111,13 +112,8 @@
 </div>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
-<script type="text/javascript">
-    const i18n = [];
+<script type="text/javascript" defer>
     i18n["addTitle"] = '<spring:message code="meal.add"/>';
     i18n["editTitle"] = '<spring:message code="meal.edit"/>';
-
-    <c:forEach var="key" items='<%=new String[]{"common.deleted","common.saved","common.enabled","common.disabled","common.errorStatus","common.confirm"}%>'>
-    i18n["${key}"] = "<spring:message code="${key}"/>";
-    </c:forEach>
 </script>
 </html>
