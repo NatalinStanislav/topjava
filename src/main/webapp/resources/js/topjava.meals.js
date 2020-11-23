@@ -62,4 +62,16 @@ $(function () {
         }),
         updateTable: updateFilteredTable
     });
+    $.datetimepicker.setLocale(navigator.language.substring(0,2));
+    $("#dateTime").datetimepicker({
+        format:"Y-m-d\\TH:i"
+    });
+    $("#startDate, #endDate").datetimepicker({
+        timepicker:false,
+        format:"Y-m-d"
+    });
+    $("#startTime, #endTime").datetimepicker({
+        datepicker:false,
+        format:'H:i'
+    });
 });
