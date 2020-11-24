@@ -45,6 +45,11 @@ function updateTableByData(data) {
 }
 
 function save() {
+    if(context.ajaxUrl==="profile/meals/") {
+        var dateTimeInput = $("#dateTime");
+        var isoDateTime = dateTimeInput.val().replace(" ", "T");
+        dateTimeInput.val(isoDateTime);
+    }
     $.ajax({
         type: "POST",
         url: context.ajaxUrl,

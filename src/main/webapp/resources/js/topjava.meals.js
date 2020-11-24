@@ -64,14 +64,46 @@ $(function () {
     });
     $.datetimepicker.setLocale(navigator.language.substring(0,2));
     $("#dateTime").datetimepicker({
-        format:"Y-m-d\\TH:i"
+        format:"Y-m-d H:i"
     });
-    $("#startDate, #endDate").datetimepicker({
-        timepicker:false,
-        format:"Y-m-d"
+    jQuery(function(){
+        jQuery('#startDate').datetimepicker({
+            format:"Y-m-d",
+            onShow:function( ct ){
+                this.setOptions({
+                    maxDate:jQuery('#endDate').val()?jQuery('#endDate').val():false
+                })
+            },
+            timepicker:false
+        });
+        jQuery('#endDate').datetimepicker({
+            format:"Y-m-d",
+            onShow:function( ct ){
+                this.setOptions({
+                    minDate:jQuery('#startDate').val()?jQuery('#startDate').val():false
+                })
+            },
+            timepicker:false
+        });
     });
-    $("#startTime, #endTime").datetimepicker({
-        datepicker:false,
-        format:'H:i'
+    jQuery(function(){
+        jQuery('#startTime').datetimepicker({
+            format:'H:i',
+            onShow:function( ct ){
+                this.setOptions({
+                    maxTime:jQuery('#endTime').val()?jQuery('#endTime').val():false
+                })
+            },
+            datepicker:false
+        });
+        jQuery('#endTime').datetimepicker({
+            format:'H:i',
+            onShow:function( ct ){
+                this.setOptions({
+                    minTime:jQuery('#startTime').val()?jQuery('#startTime').val():false
+                })
+            },
+            datepicker:false
+        });
     });
 });
