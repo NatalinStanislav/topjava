@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +39,9 @@ public class ExceptionInfoHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR);
+        logErrorInfo(req, e, true, DATA_ERROR);
+        String message = "User with this email already exists";
+        return new ErrorInfo(req.getRequestURL(), DATA_ERROR, message);
     }
 
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)  // 422
@@ -54,10 +57,15 @@ public class ExceptionInfoHandler {
     }
 
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
-    @ExceptionHandler(BindException.class)
-    public ErrorInfo validationError(HttpServletRequest req, BindException e) {
+    @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
+    public ErrorInfo validationError(HttpServletRequest req, Exception e) {
         logErrorInfo(req, e, true, VALIDATION_ERROR);
-        String message = ValidationUtil.getParsedBindingResult(e.getBindingResult());
+        String message;
+        if (e instanceof BindException) {
+            message = ValidationUtil.getParsedBindingResult(((BindException) e).getBindingResult());
+        } else {
+            message = ValidationUtil.getParsedBindingResult(((MethodArgumentNotValidException) e).getBindingResult());
+        }
         return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, message);
     }
 
