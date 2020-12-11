@@ -4,6 +4,7 @@ package ru.javawebinar.topjava.web.meal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.javawebinar.topjava.MealTestData;
@@ -14,6 +15,7 @@ import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -85,11 +87,13 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void updateNotValid() throws Exception {
         Meal updated = new Meal(MEAL1_ID, MEAL1.getDateTime(), "    ", 200);
-        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(updated))
                 .with(userHttpBasic(USER)))
                 .andDo(print())
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
     }
 
     @Test
@@ -110,12 +114,14 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void createNotValid() throws Exception {
         Meal newMeal = new Meal(null, MEAL1.getDateTime(), "    ", 200);
-        perform(MockMvcRequestBuilders.post(REST_URL)
+        MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newMeal))
                 .with(userHttpBasic(USER)))
                 .andDo(print())
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
     }
 
     @Test

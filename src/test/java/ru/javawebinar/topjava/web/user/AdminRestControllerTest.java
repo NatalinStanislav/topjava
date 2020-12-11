@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web.user;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.javawebinar.topjava.UserTestData;
@@ -13,8 +14,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -94,7 +94,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))
-                .content(JsonUtil.writeValue(updated)))
+                .content(JsonUtil.writeAdditionProps(updated, "password", "password")))
                 .andExpect(status().isNoContent());
 
         USER_MATCHER.assertMatch(userService.get(USER_ID), updated);
@@ -103,11 +103,13 @@ class AdminRestControllerTest extends AbstractControllerTest {
     @Test
     void updateNotValid() throws Exception {
         UserTo updatedTo = new UserTo(null, " ", "newemail@ya.ru", "newPassword", 1500);
-        perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))
                 .content(JsonUtil.writeValue(updatedTo)))
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
     }
 
     @Test
@@ -129,12 +131,14 @@ class AdminRestControllerTest extends AbstractControllerTest {
     @Test
     void createNotValid() throws Exception {
         UserTo newTo = new UserTo(null, "  ", "newemail@ya.ru", "newPassword", 1500);
-        perform(MockMvcRequestBuilders.post(REST_URL)
+        MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))
                 .content(JsonUtil.writeValue(newTo)))
                 .andDo(print())
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
     }
 
     @Test
