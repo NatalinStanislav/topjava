@@ -1,15 +1,17 @@
 package ru.javawebinar.topjava.web.user;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.support.SessionStatus;
-import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.UserTo;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
+import ru.javawebinar.topjava.web.EmailDuplicateValidator;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.validation.Valid;
@@ -17,6 +19,13 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/profile")
 public class ProfileUIController extends AbstractUserController {
+    @Autowired
+    EmailDuplicateValidator validator;
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.addValidators(validator);
+    }
 
     @GetMapping
     public String profile() {
@@ -25,7 +34,6 @@ public class ProfileUIController extends AbstractUserController {
 
     @PostMapping
     public String updateProfile(@Valid UserTo userTo, BindingResult result, SessionStatus status) {
-        checkDuplicateEmail(userTo, result);
         if (result.hasErrors()) {
             return "profile";
         } else {
@@ -45,7 +53,6 @@ public class ProfileUIController extends AbstractUserController {
 
     @PostMapping("/register")
     public String saveRegister(@Valid UserTo userTo, BindingResult result, SessionStatus status, ModelMap model) {
-        checkDuplicateEmail(userTo, result);
         if (result.hasErrors()) {
             model.addAttribute("register", true);
             return "profile";
@@ -53,18 +60,6 @@ public class ProfileUIController extends AbstractUserController {
             super.create(userTo);
             status.setComplete();
             return "redirect:/login?message=app.registered&username=" + userTo.getEmail();
-        }
-    }
-
-    private void checkDuplicateEmail(UserTo userTo, BindingResult result) {
-        try {
-            User user = super.getByMail(userTo.getEmail());
-            if (SecurityUtil.safeGet()!=null && user.getId() == SecurityUtil.safeGet().getId()) {
-                return;
-            }
-            result.rejectValue("email", "Email.duplicate", "User with this email already exists");
-        } catch (NotFoundException e) {
-
         }
     }
 }

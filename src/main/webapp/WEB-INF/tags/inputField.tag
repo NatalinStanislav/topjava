@@ -14,7 +14,6 @@
             <c:when test="${inputType == 'number'}"><form:input path="${name}" type="number" class="form-control is-invalid"/></c:when>
             <c:otherwise><form:input path="${name}" class="form-control is-invalid"/></c:otherwise>
         </c:choose>
-        <div class="invalid-feedback">${status.errorMessage == 'User with this email already exists' ? "" : status.errorMessage}
-            <spring:message code="${status.errorMessage == 'User with this email already exists' ? 'user.emailDuplicateError' : 'common.empty'}"/></div>
+        <div class="invalid-feedback">${status.errorMessage}</div>
     </div>
 </spring:bind>

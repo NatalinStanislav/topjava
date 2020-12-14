@@ -98,7 +98,7 @@ function failNoty(jqXHR) {
     var errorInfo = JSON.parse(jqXHR.responseText);
     failedNote = new Noty({
         text: "<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;" + i18n["common.errorStatus"] + ": " +
-            jqXHR.status + "<br>" + errorInfo.type + "<br>" + renderErrorInfo(errorInfo.detail.split(',')),
+            jqXHR.status + "<br>" + errorInfo.type + "<br>" + errorInfo.detail.join("<br>"),
         type: "error",
         layout: "bottomRight"
     }).show();
@@ -114,13 +114,4 @@ function renderDeleteBtn(data, type, row) {
     if (type === "display") {
         return "<a onclick='deleteRow(" + row.id + ");'><span class='fa fa-remove'></span></a>";
     }
-}
-
-function renderErrorInfo(errorList) {
-    var text = "";
-    for (let i = 0; i < errorList.length; i++) {
-        text = text + errorList[i]+"<br>";
-    }
-    text = text.substring(1, text.length-5)
-    return text;
 }
