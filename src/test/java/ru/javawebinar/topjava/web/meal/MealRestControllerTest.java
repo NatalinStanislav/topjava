@@ -7,6 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
@@ -97,6 +99,20 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateDateTimeDuplicate() throws Exception {
+        Meal updated = new Meal(MEAL1_ID, MEAL2.getDateTime(), "water", 200);
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updated))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"DATA_ERROR\""));
+    }
+
+    @Test
     void createWithLocation() throws Exception {
         Meal newMeal = MealTestData.getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
@@ -122,6 +138,20 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createDateTimeDuplicate() throws Exception {
+        Meal newMeal = new Meal(null, MEAL1.getDateTime(), "rrrr", 200);
+        MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(newMeal))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"DATA_ERROR\""));
     }
 
     @Test

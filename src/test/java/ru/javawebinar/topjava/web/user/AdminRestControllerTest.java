@@ -113,6 +113,18 @@ class AdminRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void updateEmailDuplicate() throws Exception {
+        UserTo updatedTo = new UserTo(null, "User#63", "admin@gmail.com", "newPassword", 1500);
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(JsonUtil.writeValue(updatedTo)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
+    }
+
+    @Test
     void createWithLocation() throws Exception {
         User newUser = getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
@@ -131,6 +143,19 @@ class AdminRestControllerTest extends AbstractControllerTest {
     @Test
     void createNotValid() throws Exception {
         UserTo newTo = new UserTo(null, "  ", "newemail@ya.ru", "newPassword", 1500);
+        MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(JsonUtil.writeValue(newTo)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
+    }
+
+    @Test
+    void createEmailDuplicate() throws Exception {
+        UserTo newTo = new UserTo(null, "User#63", "admin@gmail.com", "newPassword", 1500);
         MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))

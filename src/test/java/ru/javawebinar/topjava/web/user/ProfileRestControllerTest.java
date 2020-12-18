@@ -80,6 +80,18 @@ class ProfileRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void registerEmailDuplicate() throws Exception {
+        UserTo newTo = new UserTo(null, "User#63", "user@yandex.ru", "newPassword", 1500);
+        MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL + "/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(newTo)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
+    }
+
+    @Test
     void update() throws Exception {
         UserTo updatedTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword", 1500);
         perform(MockMvcRequestBuilders.put(REST_URL).contentType(MediaType.APPLICATION_JSON)
@@ -94,6 +106,18 @@ class ProfileRestControllerTest extends AbstractControllerTest {
     @Test
     void updateNotValid() throws Exception {
         UserTo updatedTo = new UserTo(null, " ", "newemail@ya.ru", "newPassword", 1500);
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL).contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(USER))
+                .content(JsonUtil.writeValue(updatedTo)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("\"type\":\"VALIDATION_ERROR\""));
+    }
+
+    @Test
+    void updateEmailDuplicate() throws Exception {
+        UserTo updatedTo = new UserTo(null, "User#63", "admin@gmail.com", "newPassword", 1500);
         MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL).contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(USER))
                 .content(JsonUtil.writeValue(updatedTo)))

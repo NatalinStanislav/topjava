@@ -27,4 +27,7 @@
             </form:form>
         </sec:authorize>
     </div>
+    <%--        https://askdev.ru/q/kak-poluchit-ishodnyy-url-adres-zaprosa-ot-servleta-jsp-posle-neskolkih-servletov-vpered-113279/--%>
+    <a href="${requestScope['javax.servlet.forward.request_uri']}?language=en">English</a>&ensp;|&ensp;<a href="${requestScope['javax.servlet.forward.request_uri']}?language=ru">Russian</a>
+
 </nav>
