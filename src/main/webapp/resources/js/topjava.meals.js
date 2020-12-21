@@ -19,7 +19,9 @@ $.ajaxSetup({
         "text json": function (stringData) {
             var json = JSON.parse(stringData);
             $(json).each(function () {
-                this.dateTime = this.dateTime.replace('T', ' ').substr(0, 16);
+                if (this.hasOwnProperty('dateTime')) {
+                    this.dateTime = this.dateTime.substr(0, 16).replace('T', ' ');
+                }
             });
             return json;
         }
