@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -30,7 +29,7 @@ public class EmailDuplicateValidator implements Validator {
         HasId actual = (HasId) target;
         User user = userRepository.getByEmail(((HaveEmail) target).getEmail());
         if (user != null && !user.getId().equals(actual.getId())) {
-            errors.rejectValue("email", "user.emailDuplicateError", messageSource.getMessage("user.emailDuplicateError", null, LocaleContextHolder.getLocale()));
+            errors.rejectValue("email", "user.emailDuplicateError");
         }
     }
 }

@@ -60,6 +60,9 @@ $(function () {
         },
     }, updateFilteredTable);
 
+    // https://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-get-parameters
+    $.datetimepicker.setLocale(new URL(window.location.href).searchParams.get("language"));
+
 //  http://xdsoft.net/jqplugins/datetimepicker/
     var startDate = $('#startDate');
     var endDate = $('#endDate');
