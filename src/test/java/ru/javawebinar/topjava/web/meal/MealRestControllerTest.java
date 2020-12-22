@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.web.meal;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -9,19 +8,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.TestUtil.readFromJson;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
-import static ru.javawebinar.topjava.UserTestData.USER;
-import static ru.javawebinar.topjava.UserTestData.USER_ID;
+import static ru.javawebinar.topjava.UserTestData.*;
 import static ru.javawebinar.topjava.util.MealsUtil.createTo;
 import static ru.javawebinar.topjava.util.MealsUtil.getTos;
 
@@ -35,7 +33,7 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void get() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + MEAL1_ID)
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -51,7 +49,7 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void getNotFound() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + ADMIN_MEAL_ID)
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -59,7 +57,7 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void delete() throws Exception {
         perform(MockMvcRequestBuilders.delete(REST_URL + MEAL1_ID)
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andExpect(status().isNoContent());
         assertThrows(NotFoundException.class, () -> mealService.get(MEAL1_ID, USER_ID));
     }
@@ -67,7 +65,7 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void deleteNotFound() throws Exception {
         perform(MockMvcRequestBuilders.delete(REST_URL + ADMIN_MEAL_ID)
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andExpect(status().isUnprocessableEntity());
     }
 
@@ -76,7 +74,7 @@ class MealRestControllerTest extends AbstractControllerTest {
         Meal updated = MealTestData.getUpdated();
         perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(updated))
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andExpect(status().isNoContent());
 
         MEAL_MATCHER.assertMatch(mealService.get(MEAL1_ID, USER_ID), updated);
@@ -88,7 +86,7 @@ class MealRestControllerTest extends AbstractControllerTest {
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newMeal))
-                .with(userHttpBasic(USER)));
+                .with(userHttpBasic(user)));
 
         Meal created = readFromJson(action, Meal.class);
         int newId = created.id();
@@ -100,11 +98,11 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void getAll() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL)
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MEAL_TO_MATCHER.contentJson(getTos(MEALS, USER.getCaloriesPerDay())));
+                .andExpect(MEAL_TO_MATCHER.contentJson(getTos(MEALS, user.getCaloriesPerDay())));
     }
 
     @Test
@@ -112,7 +110,7 @@ class MealRestControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.get(REST_URL + "filter")
                 .param("startDate", "2020-01-30").param("startTime", "07:00")
                 .param("endDate", "2020-01-31").param("endTime", "11:00")
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MEAL_TO_MATCHER.contentJson(createTo(MEAL5, true), createTo(MEAL1, false)));
@@ -121,8 +119,32 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void filterAll() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + "filter?startDate=&endTime=")
-                .with(userHttpBasic(USER)))
+                .with(userHttpBasic(user)))
                 .andExpect(status().isOk())
-                .andExpect(MEAL_TO_MATCHER.contentJson(getTos(MEALS, USER.getCaloriesPerDay())));
+                .andExpect(MEAL_TO_MATCHER.contentJson(getTos(MEALS, user.getCaloriesPerDay())));
+    }
+
+    @Test
+    void createInvalid() throws Exception {
+        Meal invalid = new Meal(null, null, "Dummy", 200);
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(invalid))
+                .with(userHttpBasic(admin)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.type").value(ErrorType.VALIDATION_ERROR.name()));
+    }
+
+    @Test
+    void updateInvalid() throws Exception {
+        Meal invalid = new Meal(MEAL1_ID, null, null, 6000);
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(invalid))
+                .with(userHttpBasic(user)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.type").value(ErrorType.VALIDATION_ERROR.name()));
     }
 }

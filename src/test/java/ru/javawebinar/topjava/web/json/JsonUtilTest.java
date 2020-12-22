@@ -33,10 +33,10 @@ class JsonUtilTest {
 
     @Test
     void writeOnlyAccess() throws Exception {
-        String json = JsonUtil.writeValue(UserTestData.USER);
+        String json = JsonUtil.writeValue(UserTestData.user);
         System.out.println(json);
         assertThat(json, not(containsString("password")));
-        String jsonWithPass = UserTestData.jsonWithPassword(UserTestData.USER, "newPass");
+        String jsonWithPass = UserTestData.jsonWithPassword(UserTestData.user, "newPass");
         System.out.println(jsonWithPass);
         User user = JsonUtil.readValue(jsonWithPass, User.class);
         assertEquals(user.getPassword(), "newPass");

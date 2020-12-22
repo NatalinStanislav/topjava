@@ -26,12 +26,12 @@ public class UserTestData {
     public static final int USER_ID = START_SEQ;
     public static final int ADMIN_ID = START_SEQ + 1;
 
-    public static final User USER = new User(USER_ID, "User", "user@yandex.ru", "password", 2005, Role.USER);
-    public static final User ADMIN = new User(ADMIN_ID, "Admin", "admin@gmail.com", "admin", 1900, Role.ADMIN, Role.USER);
+    public static final User user = new User(USER_ID, "User", "user@yandex.ru", "password", 2005, Role.USER);
+    public static final User admin = new User(ADMIN_ID, "Admin", "admin@gmail.com", "admin", 1900, Role.ADMIN, Role.USER);
 
     static {
-        USER.setMeals(MEALS);
-        ADMIN.setMeals(List.of(ADMIN_MEAL2, ADMIN_MEAL1));
+        user.setMeals(MEALS);
+        admin.setMeals(List.of(ADMIN_MEAL2, ADMIN_MEAL1));
     }
 
     public static User getNew() {
@@ -39,7 +39,7 @@ public class UserTestData {
     }
 
     public static User getUpdated() {
-        User updated = new User(USER);
+        User updated = new User(user);
         updated.setName("UpdatedName");
         updated.setCaloriesPerDay(330);
         updated.setRoles(Collections.singletonList(Role.ADMIN));
