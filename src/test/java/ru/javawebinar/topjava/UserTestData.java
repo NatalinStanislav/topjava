@@ -31,7 +31,7 @@ public class UserTestData {
 
     static {
         user.setMeals(MEALS);
-        admin.setMeals(List.of(ADMIN_MEAL2, ADMIN_MEAL1));
+        admin.setMeals(List.of(adminMeal2, adminMeal1));
     }
 
     public static User getNew() {
